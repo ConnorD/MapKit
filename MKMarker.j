@@ -304,7 +304,8 @@
 - (void)addToMapView:(MKMapView)mapView
 {
     var googleMap = [mapView gMap];
-    var gm = [MKMapView gmNamespace];
+
+    var gm = [mapView gmNamespace];
 
     var icon = new gm.Icon(gm.DEFAULT_ICON);
 
