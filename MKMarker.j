@@ -208,14 +208,19 @@
 
 - (void)openInfoWindow
 {
+    [self openInfoWindowWithOptions:{}];
+}
+
+- (void)openInfoWindowWithOptions:options
+{
     if (_gMarker)
     {
         _gMarker.closeInfoWindow();
 
         if (![_gInfoWindowTabs count])
-            _gMarker.openInfoWindowHtml(_infoWindowHTML);
+            _gMarker.openInfoWindowHtml(_infoWindowHTML, options);
         else
-            _gMarker.openInfoWindowTabsHtml([_gInfoWindowTabs allValues], _infoWindowHTML);
+            _gMarker.openInfoWindowTabsHtml([_gInfoWindowTabs allValues], _infoWindowHTML, options);
     }
 }
 
@@ -240,6 +245,11 @@
     {
         [self shouldOpenInfoWindowOnClick];
     }
+}
+
+- (void)shouldOpenInfoWindowOnClickWithOptions:options
+{
+    [self addEventForName:@"click" withFunction:function() {[self openInfoWindowWithOptions:options];}];
 }
 
 - (void)shouldOpenInfoWindowOnClick
