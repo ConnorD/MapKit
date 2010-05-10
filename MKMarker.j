@@ -371,13 +371,17 @@
 
     google.maps.Event.addListener(_gMarker, 'dragend', function() { [self updateLocation]; });
     [mapView googleMap].addOverlay(_gMarker);
+    
+    [[CPRunLoop currentRunLoop] limitDateForMode:CPDefaultRunLoopMode];
 }
 
 - (void)remove
 {
     if (_gMarker && _mapView)
     {
-        google.maps.removeOverlay(_gMarker);
+        [mapView googleMap].removeOverlay(_gMarker);
+        
+        [[CPRunLoop currentRunLoop] limitDateForMode:CPDefaultRunLoopMode];
     }
 }
 
