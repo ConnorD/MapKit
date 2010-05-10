@@ -1,5 +1,5 @@
 // MKMapView.j
-// SIMapKit
+// MapKit
 //
 // Created by Francisco Tolmasky.
 // Copyright (c) 2010 280 North, Inc.
