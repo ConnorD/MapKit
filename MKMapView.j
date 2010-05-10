@@ -1,8 +1,10 @@
 // MKMapView.j
-// MapKit
+// SIMapKit
 //
 // Created by Francisco Tolmasky.
 // Copyright (c) 2010 280 North, Inc.
+// 
+// Modified by Stephen Ierodiaconou
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -45,7 +47,9 @@
     // Google Maps v2 DOM Support
     DOMElement              m_DOMMapElement;
     DOMElement              m_DOMGuardElement;
-    Object                  m_map;
+    Object                  m_map                           @accessors(property=googleMap);
+
+    id                      m_delegate                      @accessors(property=delegate);
 }
 
 + (CPSet)keyPathsForValuesAffectingCenterCoordinateLatitude
@@ -178,6 +182,9 @@
         google.maps.Event.addListener(m_map, "moveend", updateCenterCoordinate);
         google.maps.Event.addListener(m_map, "resize", updateCenterCoordinate);
         google.maps.Event.addListener(m_map, "zoomend", updateZoomLevel);
+
+        if ([m_delegate respondsToSelector:@selector(mapKitIsReady:)])
+            [m_delegate mapKitIsReady:self];
     });
 }
 
