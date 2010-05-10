@@ -25,11 +25,10 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 @import <AppKit/CPView.j>
-@import "MKMapItem.j"
 @import "MKMapView.j"
 @import "MKLocation.j"
 
-@implementation MKMarker : MKMapItem
+@implementation MKMarker : CPObject
 {
     Marker          _gMarker            @accessors(property=gMarker);
     CPDictionary    _gInfoWindowTabs    @accessors(property=gInfoWindowTabs);
