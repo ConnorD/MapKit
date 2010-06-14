@@ -1,8 +1,7 @@
-// MapKit.j
+// MKCircle.j
 // MapKit
 //
-// Created by Francisco Tolmasky.
-// Copyright (c) 2010 280 North, Inc.
+// Created by Stephen Ierodiaconou
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -25,9 +24,49 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-@import "MKCircle.j"
-@import "MKGeometry.j"
-@import "MKMapView.j"
-@import "MKMarker.j"
-@import "MKTypes.j"
+@import "MKOverlay.j"
 
+@implementation MKCircle : MKOverlay
+{
+    float   m_radius;
+    CPColor m_fillColor;
+    CPColor m_strokeColor;
+}
+
+// Radius in meters
+- (void)setRadius:(float)radius
+{
+    m_radius = radius;
+    
+    // RESIZE CONTENT RECT
+    
+}
+
+- (void)setFillColor:(CPColor)color
+{
+    m_fillColor = color;
+}
+
+- (void)setStrokeColor:(CPColor)color
+{
+    m_strokeColor = color;
+}
+
+- (void)drawRect:(CGRect)rect
+{
+    if (m_fillColor)
+        [m_fillColor setFill];
+    else
+        [[CPColor colorWithWhite:1.0 alpha:0.0] setFill]; // transparent by default
+
+    if (m_strokeColor)
+        [m_strokeColor setStroke];
+    else
+        [[CPColor blackColor] setStroke];
+
+    var circle = [CPBezierPath bezierPathWithOvalInRect:rect];
+    [circle fill];
+    [circle stroke];
+}
+
+@end

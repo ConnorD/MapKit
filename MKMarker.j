@@ -24,22 +24,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-@implementation MKMarker : CPView
+@import "MKOverlay.j"
+
+@implementation MKMarker : MKOverlay
 {
-    MKMapView   m_map;
     CPImageView m_icon;
-    CLLocationCoordinate2D m_location;
-    CGPoint     m_anchor;
-}
-
-- (void)setCoordinate:(CLLocationCoordinate2D)aCoordinate
-{
-    m_location = aCoordinate;
-}
-
-- (void)setAnchor:(CGPoint)anAnchor
-{
-    m_anchor = anAnchor;
 }
 
 - (void)setIcon:(CPImage)anImage size:(CGSize)size
@@ -49,42 +38,4 @@
     [self addSubview:m_icon];
 }
 
-// set map to nil if you want to remove from any view.
-- (void)setMap:map
-{
-    if (m_map)
-        [self removeFromSuperview];
-
-    m_map = map;
-    
-    if (m_map)
-    {
-        [self _updateOrigin];
-        
-        [[CPNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomDidChange:) name:MKMapViewZoomDidChangeNotification object:m_map];
-        [[CPNotificationCenter defaultCenter] addObserver:self selector:@selector(mapCenterCoordinateDidChange:) name:MKMapViewCenterCoordinateDidChangeNotification object:m_map];
-        [m_map addSubview:self];
-    }
-}
-
-- (void)zoomDidChange:sender
-{
-    [self _updateOrigin];
-}
-
-- (void)mapCenterCoordinateDidChange:sender
-{
-    [self _updateOrigin];
-}
-
-- (void)_updateOrigin
-{   
-    var point = [m_map convertCoordinate:m_location toPointToView:m_map];
-    if (m_anchor)
-    {
-        point.x -= m_anchor.x;
-        point.y -= m_anchor.y;
-    }
-    [self setFrameOrigin:point];
-}
 @end
