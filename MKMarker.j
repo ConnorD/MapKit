@@ -258,13 +258,13 @@
 - (void)show
 {
     if (_gMarker)
-        _gMarker.setMap([_mapView gMap]);//_gMarker.show();
+        _gMarker.setMap([_mapView gMap]);
 }
 
 - (void)hide
 {
     if (_gMarker)
-        _gMarker.setMap(null);//_gMarker.show();
+        _gMarker.setMap(null);
 }
 
 - (void)encodeWithCoder:(CPCoder)coder

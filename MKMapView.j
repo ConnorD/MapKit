@@ -45,7 +45,7 @@ var gmNamespace = nil;
 }
 
 - (id)initWithFrame:(CGRect)aFrame apiKey:(CPString)apiKey center:(MKLocation)aLocation
-{console.log('initWithFrame:apiKey:center:')
+{
     _apiKey = apiKey;
     _center = aLocation;
     _zoomLevel = 6;
@@ -70,7 +70,7 @@ var gmNamespace = nil;
 }
 
 - (void)webView:(CPWebView)aWebView didFinishLoadForFrame:(id)aFrame 
-{console.log('webView:didFinishLoadForFrame')
+{
     // this is called twice for some reason
     if(!hasLoaded) 
     {
@@ -80,7 +80,7 @@ var gmNamespace = nil;
 }
 
 - (void)loadGoogleMapsWhenReady() 
-{console.log('loadGoogleMapsWhenReady')
+{
     var domWin = [self DOMWindow];
     
     if (typeof(domWin.google) === 'undefined') 
@@ -107,7 +107,7 @@ var gmNamespace = nil;
 }
 
 - (void)createMap
-{console.log('createMap')
+{
     var domWin = [self DOMWindow];
     //remember the google maps namespace, but only once because it's a class variable
     if (!gmNamespace) 
@@ -118,7 +118,6 @@ var gmNamespace = nil;
     // for some things the current google namespace needs to be used...
     var localGmNamespace = domWin.google.maps;
 
-    //console.log("Creating map");
     _gMap = new localGmNamespace.Map(_DOMMapElement, { 'mapTypeId':localGmNamespace.MapTypeId.HYBRID});
     //_gMap.addMapType(G_SATELLITE_3D_MAP);
     //_gMap.setMapType(localGmNamespace.G_PHYSICAL_MAP);
@@ -138,7 +137,7 @@ var gmNamespace = nil;
     }
 }
 - (void)setFrameSize:(CGSize)aSize
-{console.log('setFrameSize:')
+{
     [super setFrameSize:aSize];
     var bounds = [self bounds];
     if (_gMap) 
@@ -149,7 +148,7 @@ var gmNamespace = nil;
 
 /* Overriding CPWebView's implementation */
 - (BOOL)_resizeWebFrame 
-{console.log('_resizeWebFrame')
+{
     var width = [self bounds].size.width,
         height = [self bounds].size.height;
 
@@ -160,7 +159,7 @@ var gmNamespace = nil;
 }
 
 - (void)viewDidMoveToSuperview
-{console.log('viewDidMoveToSuperview')
+{
     if (!_mapReady && _googleAjaxLoaded) 
     {
         [self createMap];
@@ -169,7 +168,7 @@ var gmNamespace = nil;
 }
 
 - (void)setCenter:(MKLocation)aLocation 
-{console.log('setCenter:')
+{
     _center = aLocation;
     if (_mapReady) 
     {
