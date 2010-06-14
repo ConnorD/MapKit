@@ -31,9 +31,9 @@
 @import "MKGeometry.j"
 @import "MKTypes.j"
 
-MKMapViewDidFinishLoadingNotification = @"MKMapViewDidFinishLoadingNotification",
-MKMapViewCenterCoordinateDidChangeNotification = @"MKMapViewCenterCoordinateDidChangeNotification",
-MKMapViewZoomDidChangeNotification = @"MKMapViewZoomDidChangeNotification";
+MKMapViewDidFinishLoadingNotification           = @"MKMapViewDidFinishLoadingNotification",
+MKMapViewCenterCoordinateDidChangeNotification  = @"MKMapViewCenterCoordinateDidChangeNotification",
+MKMapViewZoomDidChangeNotification              = @"MKMapViewZoomDidChangeNotification";
 
 @implementation MKMapView : CPView
 {
@@ -329,6 +329,17 @@ MKMapViewZoomDidChangeNotification = @"MKMapViewZoomDidChangeNotification";
     [self trackPan:anEvent];
 
     [super mouseDown:anEvent];
+}
+
+- (void)scrollWheel:(CPEvent)anEvent
+{
+    if (m_scrollWheelZoomEnabled)
+    {
+        if ([anEvent deltaY] > 0)
+            m_map.zoomOut(LatLngFromCLLocationCoordinate2D([self convertPoint:[anEvent locationInWindow] toCoordinateFromView:nil]), YES, YES);
+        else
+            m_map.zoomIn(LatLngFromCLLocationCoordinate2D([self convertPoint:[anEvent locationInWindow] toCoordinateFromView:nil]), YES, YES);
+    }
 }
 
 - (void)trackPan:(CPEvent)anEvent
