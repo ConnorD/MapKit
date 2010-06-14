@@ -13,6 +13,7 @@
     BOOL        _withShadow  @accessors(property=withShadow);
     CPString    _iconUrl    @accessors(property=iconUrl);
     GIcon       _gIcon     @accessors(property=customIconObject);
+    GIcon       _gShadow   @accessors(property=customIconShadowObject);
     CPString    _shadowUrl  @accessors(property=shadowUrl);
     id          _delegate  @accessors(property=delegate);
     CPString    _infoWindowHTML;
@@ -66,119 +67,6 @@
     return _draggable;
 }
 
-/*!
-    Sets the icon URL based on this url pattern:
-    http://maps.google.com/mapfiles/ms/micons/<anIconName>.png
-
-    Some examples:
-
-    POI
-    arts
-    bar
-    blue-dot
-    blue-pushpin
-    blue
-    bus
-    cabs
-    camera
-    campfire
-    campground
-    caution
-    coffeehouse
-    convienancestore
-    cycling
-    dollar
-    drinking_water
-    earthquake
-    electronics
-    euro
-    fallingrocks
-    ferry
-    firedept
-    fishing
-    flag
-    gas
-    golfer
-    green-dot
-    green
-    grn-pushpin
-    grocerystore
-    groecerystore
-    helicopter
-    hiker
-    homegardenbusiness
-    horsebackriding
-    hospitals
-    hotsprings
-    info
-    info_circle
-    landmarks-jp
-    lightblue
-    lodging
-    ltblu-pushpin
-    ltblue-dot
-    man
-    marina
-    mechanic
-    motorcycling
-    movies
-    orange-dot
-    orange
-    parkinglot
-    partly_cloudy
-    pharmacy-us
-    phone
-    picnic
-    pink-dot
-    pink-pushpin
-    pink
-    plane
-    police
-    postoffice-jp
-    postoffice-us
-    purple-dot
-    purple-pushpin
-    purple
-    question
-    rail
-    rainy
-    rangerstation
-    realestate
-    recycle
-    red-dot
-    red-pushpin
-    red
-    restaurant
-    sailing
-    salon
-    shopping
-    ski
-    ski
-    snack_bar
-    snowflake_simple
-    sportvenue
-    subway
-    sunny
-    swimming
-    toilets
-    trail
-    tram
-    tree
-    truck
-    volcano
-    water
-    waterfalls
-    webcam
-    wheel_chair_accessible
-    woman
-    yellow-dot
-    yellow
-    yen
-    ylw-pushpin
-
-    You can find a list of official google maps icons here:
-    http://www.visual-case.it/cgi-bin/vc/GMapsIcons.pl
-*/
 - (void)setGoogleIcon:(CPString)anIconName withShadow:(BOOL)withShadow
 {
     _withShadow = withShadow;
@@ -303,35 +191,40 @@
 
 - (void)addToMapView:(MKMapView)mapView
 {
-    var googleMap = [mapView gMap];
-
-    var gm = [mapView gmNamespace];
-
-    var icon = new gm.Icon(gm.DEFAULT_ICON);
+    var googleMap = [mapView gMap],
+        gm = [mapView gmNamespace],
+        icon = nil, 
+        shadow = nil;
 
     _mapView = mapView;
 
     // set a different icon if the _iconUrl is set
     if (_iconUrl)
     {
-        icon.image = _iconUrl;
-        icon.iconSize = new gm.Size(32, 32);
-        icon.iconAnchor = new gm.Point(16, 32);
+        icon = new gm.MarkerImage({'url':_iconUrl, 'size':new gm.Size(32, 32), 'anchor':new gm.Point(16, 32)});
+        shadow = new gm.MarkerImage({'url':_shadowUrl, 'size':new gm.Size(59, 32)}); 
     }
     else if (_gIcon)
     {
         icon = _gIcon;
+        shadow = _gShadow;
     }
 
     // set the shadow
-    if (_withShadow && _shadowUrl)
+    /*if (_withShadow && _shadowUrl)
     {
-        icon.shadow = _shadowUrl;
-        icon.shadowSize = new gm.Size(59, 32);
-    }
-
-    var markerOptions = { "icon":icon, "clickable":false, "draggable":_draggable };
-    _gMarker = new gm.Marker([_location googleLatLng], markerOptions);
+        shadow = new gm.MarkerImage({'url':_shadowUrl, 'size':new gm.Size(59, 32)}); 
+    }*/
+    _gMarker = new gm.Marker({  position:[_location googleLatLng],
+                                map:googleMap,
+                                icon:icon
+                                });
+    if (_withShadow)
+    {
+        _gMarker.setShadow(shadow);
+    } 
+    _gMarker.setClickable(true);
+    _gMarker.setDraggable(false);
 
     // add the infowindow html
     if (_infoWindowHTML)
@@ -345,33 +238,33 @@
         for (var key in _eventHandlers)
         {
             var func = _eventHandlers[key];
-            gm.Event.addListener(_gMarker, key, func);
+            gm.event.addListener(_gMarker, key, func);
         }
     }
 
-    gm.Event.addListener(_gMarker, 'dragend', function() { [self updateLocation]; });
-    googleMap.addOverlay(_gMarker);
+    gm.event.addListener(_gMarker, 'dragend', function() { [self updateLocation]; });
+    _gMarker.setMap(googleMap);
 }
 
 - (void)remove
 {
     if (_gMarker && _mapView)
     {
-        var googleMap = [_mapView gMap];
-        googleMap.removeOverlay(_gMarker);
+        _gMarker.setMap(null);
+        _gMarker = null;
     }
 }
 
 - (void)show
 {
     if (_gMarker)
-        _gMarker.show();
+        _gMarker.setMap([_mapView gMap]);//_gMarker.show();
 }
 
 - (void)hide
 {
     if (_gMarker)
-        _gMarker.show();
+        _gMarker.setMap(null);//_gMarker.show();
 }
 
 - (void)encodeWithCoder:(CPCoder)coder

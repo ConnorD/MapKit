@@ -45,7 +45,7 @@ var gmNamespace = nil;
 }
 
 - (id)initWithFrame:(CGRect)aFrame apiKey:(CPString)apiKey center:(MKLocation)aLocation
-{
+{console.log('initWithFrame:apiKey:center:')
     _apiKey = apiKey;
     _center = aLocation;
     _zoomLevel = 6;
@@ -62,14 +62,15 @@ var gmNamespace = nil;
         var bounds = [self bounds];
         
         [self setFrameLoadDelegate:self];
-        [self loadHTMLStringWithoutMessingUpScrollbars:@"<html><head><script type=\"text/javascript\" src=\"http://www.google.com/jsapi?key=" + _apiKey + "\"></script></head><body style='padding:0px; margin:0px'><div id='MKMapViewDiv' style='left: 0px; top: 0px; width: 100%; height: 100%'></div></body></html>"];
+        //[self loadHTMLStringWithoutMessingUpScrollbars:@"<html><head><script type=\"text/javascript\" src=\"http://www.google.com/jsapi?key=" + _apiKey + "\"></script></head><body style='padding:0px; margin:0px'><div id='MKMapViewDiv' style='left: 0px; top: 0px; width: 100%; height: 100%'></div></body></html>"];
+        [self loadHTMLStringWithoutMessingUpScrollbars:@"<html><head><script type=\"text/javascript\" src=\"http://maps.google.com/maps/api/js?sensor=false\"></script></head><body style='padding:0px; margin:0px'><div id='MKMapViewDiv' style='left: 0px; top: 0px; width: 100%; height: 100%'></div></body></html>"];
     }
 
     return self;
 }
 
 - (void)webView:(CPWebView)aWebView didFinishLoadForFrame:(id)aFrame 
-{
+{console.log('webView:didFinishLoadForFrame')
     // this is called twice for some reason
     if(!hasLoaded) 
     {
@@ -79,7 +80,7 @@ var gmNamespace = nil;
 }
 
 - (void)loadGoogleMapsWhenReady() 
-{
+{console.log('loadGoogleMapsWhenReady')
     var domWin = [self DOMWindow];
     
     if (typeof(domWin.google) === 'undefined') 
@@ -88,7 +89,7 @@ var gmNamespace = nil;
     } 
     else 
     {
-        var googleScriptElement = domWin.document.createElement('script');
+        /*var googleScriptElement = domWin.document.createElement('script');
         domWin.mapsJsLoaded = function () 
         {
             //alert('mapsJsLoaded!');
@@ -97,12 +98,16 @@ var gmNamespace = nil;
             [self createMap];
         };
         googleScriptElement.innerHTML = "google.load('maps', '2', {'callback': mapsJsLoaded});"
-        domWin.document.getElementsByTagName('head')[0].appendChild(googleScriptElement);
+        domWin.document.getElementsByTagName('head')[0].appendChild(googleScriptElement);*/
+        
+        _googleAjaxLoaded = YES;
+        _DOMMapElement = domWin.document.getElementById('MKMapViewDiv');
+        [self createMap]; 
     }
 }
 
 - (void)createMap
-{
+{console.log('createMap')
     var domWin = [self DOMWindow];
     //remember the google maps namespace, but only once because it's a class variable
     if (!gmNamespace) 
@@ -114,16 +119,16 @@ var gmNamespace = nil;
     var localGmNamespace = domWin.google.maps;
 
     //console.log("Creating map");
-    _gMap = new localGmNamespace.Map2(_DOMMapElement);
+    _gMap = new localGmNamespace.Map(_DOMMapElement, { 'mapTypeId':localGmNamespace.MapTypeId.HYBRID});
     //_gMap.addMapType(G_SATELLITE_3D_MAP);
-    _gMap.setMapType(localGmNamespace.G_PHYSICAL_MAP);
-    _gMap.setUIToDefault();
-    _gMap.enableContinuousZoom();
+    //_gMap.setMapType(localGmNamespace.G_PHYSICAL_MAP);
+    //_gMap.setUIToDefault();
+    //_gMap.enableContinuousZoom();
     _gMap.setCenter([_center googleLatLng], 8);
     _gMap.setZoom(_zoomLevel);
     
     // Hack to get mouse up event to work
-    localGmNamespace.Event.addDomListener(document.body, 'mouseup', function() { try { localGmNamespace.Event.trigger(domWin, 'mouseup'); } catch(e){} });
+    localGmNamespace.event.addDomListener(document.body, 'mouseup', function() { try { localGmNamespace.Event.trigger(domWin, 'mouseup'); } catch(e){} });
 
     _mapReady = YES;
     
@@ -133,7 +138,7 @@ var gmNamespace = nil;
     }
 }
 - (void)setFrameSize:(CGSize)aSize
-{
+{console.log('setFrameSize:')
     [super setFrameSize:aSize];
     var bounds = [self bounds];
     if (_gMap) 
@@ -144,7 +149,7 @@ var gmNamespace = nil;
 
 /* Overriding CPWebView's implementation */
 - (BOOL)_resizeWebFrame 
-{
+{console.log('_resizeWebFrame')
     var width = [self bounds].size.width,
         height = [self bounds].size.height;
 
@@ -155,7 +160,7 @@ var gmNamespace = nil;
 }
 
 - (void)viewDidMoveToSuperview
-{
+{console.log('viewDidMoveToSuperview')
     if (!_mapReady && _googleAjaxLoaded) 
     {
         [self createMap];
@@ -164,7 +169,7 @@ var gmNamespace = nil;
 }
 
 - (void)setCenter:(MKLocation)aLocation 
-{
+{console.log('setCenter:')
     _center = aLocation;
     if (_mapReady) 
     {
@@ -192,7 +197,8 @@ var gmNamespace = nil;
     {
         var gMarker = [aMarker gMarker];
         gMarker.setLatLng([aLocation googleLatLng]);
-        _gMap.addOverlay(gMarker);
+        //_gMap.addOverlay(gMarker);
+        gMarker.setMap(_gMap);
     } 
     else 
     {
