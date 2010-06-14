@@ -56,6 +56,29 @@
         [self removeFromSuperview];
 
     m_map = map;
+    
+    if (m_map)
+    {
+        [self _updateOrigin];
+        
+        [[CPNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomDidChange:) name:MKMapViewZoomDidChangeNotification object:m_map];
+        [[CPNotificationCenter defaultCenter] addObserver:self selector:@selector(mapCenterCoordinateDidChange:) name:MKMapViewCenterCoordinateDidChangeNotification object:m_map];
+        [m_map addSubview:self];
+    }
+}
+
+- (void)zoomDidChange:sender
+{
+    [self _updateOrigin];
+}
+
+- (void)mapCenterCoordinateDidChange:sender
+{
+    [self _updateOrigin];
+}
+
+- (void)_updateOrigin
+{   
     var point = [m_map convertCoordinate:m_location toPointToView:m_map];
     if (m_anchor)
     {
@@ -63,7 +86,5 @@
         point.y -= m_anchor.y;
     }
     [self setFrameOrigin:point];
-    [m_map addSubview:self];
 }
-
 @end

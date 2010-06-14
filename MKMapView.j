@@ -31,7 +31,9 @@
 @import "MKGeometry.j"
 @import "MKTypes.j"
 
-MKMapViewDidFinishLoadingNotification = @"MKMapViewDidFinishLoadingNotification";
+MKMapViewDidFinishLoadingNotification = @"MKMapViewDidFinishLoadingNotification",
+MKMapViewCenterCoordinateDidChangeNotification = @"MKMapViewCenterCoordinateDidChangeNotification",
+MKMapViewZoomDidChangeNotification = @"MKMapViewZoomDidChangeNotification";
 
 @implementation MKMapView : CPView
 {
@@ -230,6 +232,8 @@ MKMapViewDidFinishLoadingNotification = @"MKMapViewDidFinishLoadingNotification"
 
     if (m_map)
         m_map.setCenter(LatLngFromCLLocationCoordinate2D(aCoordinate));
+    
+    [self centerCoordinateDidChange:[CPNotification notificationWithName:MKMapViewCenterCoordinateDidChangeNotification object:self userInfo:nil]];
 }
 
 - (CLLocationCoordinate2D)centerCoordinate
@@ -263,6 +267,8 @@ MKMapViewDidFinishLoadingNotification = @"MKMapViewDidFinishLoadingNotification"
 
     if (m_map)
         m_map.setZoom(m_zoomLevel);
+        
+    [self zoomDidChange:[CPNotification notificationWithName:MKMapViewZoomDidChangeNotification object:self userInfo:nil]];
 }
 
 - (int)zoomLevel
@@ -384,6 +390,24 @@ MKMapViewDidFinishLoadingNotification = @"MKMapViewDidFinishLoadingNotification"
 }
 
 - (void)mapIsReady:(CPNotification)note
+{
+    //this looks to prevent false propagation of notifications for other objects
+    if([note object] != self)
+        return;
+
+    [[CPNotificationCenter defaultCenter] postNotification:note];
+}
+
+- (void)zoomDidChange:(CPNotification)note
+{
+    //this looks to prevent false propagation of notifications for other objects
+    if([note object] != self)
+        return;
+
+    [[CPNotificationCenter defaultCenter] postNotification:note];
+}
+
+- (void)centerCoordinateDidChange:(CPNotification)note
 {
     //this looks to prevent false propagation of notifications for other objects
     if([note object] != self)
