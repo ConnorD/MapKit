@@ -1,8 +1,7 @@
-// MapKit.j
+// MKMarker.j
 // MapKit
 //
-// Created by Francisco Tolmasky.
-// Copyright (c) 2010 280 North, Inc.
+// Created by Stephen Ierodiaconou
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -25,8 +24,35 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-@import "MKGeometry.j"
-@import "MKMapView.j"
-@import "MKMarker.j"
-@import "MKTypes.j"
+@implementation MKMarker : CPView
+{
+    MKMapView   m_map;
+    CPImageView m_icon;
+    CLLocationCoordinate2D m_location;
+}
 
+- (void)setCoordinate:(CLLocationCoordinate2D)aCoordinate
+{
+    m_location = aCoordinate;
+}
+
+- (void)setIcon:(CPImage)anImage width:aWidth height:aHeight
+{
+    m_icon = [[CPImageView alloc] initWithFrame:CGRectMake(0,0,aWidth,aHeight)];
+    [m_icon setImage:anImage];
+    [self addSubview:m_icon];
+}
+
+// set map to nil if you want to remove from any view.
+- (void)setMap:map
+{
+    if (m_map)
+        [self removeFromSuperview];
+
+    m_map = map;
+    var point = [m_map convertCoordinate:m_location toPointToView:m_map];
+    [self setFrameOrigin:point];
+    [m_map addSubview:self];
+}
+
+@end

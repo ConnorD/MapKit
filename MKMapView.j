@@ -2,6 +2,7 @@
 // MapKit
 //
 // Created by Francisco Tolmasky.
+// Extended by Stephen Ierodiaconou
 // Copyright (c) 2010 280 North, Inc.
 //
 // Permission is hereby granted, free of charge, to any person
@@ -30,9 +31,11 @@
 @import "MKGeometry.j"
 @import "MKTypes.j"
 
+MKMapViewDidFinishLoadingNotification = @"MKMapViewDidFinishLoadingNotification";
 
 @implementation MKMapView : CPView
 {
+    id                      m_delegate                  @accessors;
     CLLocationCoordinate2D  m_centerCoordinate;
     int                     m_zoomLevel;
     MKMapType               m_mapType;
@@ -178,6 +181,8 @@
         google.maps.Event.addListener(m_map, "moveend", updateCenterCoordinate);
         google.maps.Event.addListener(m_map, "resize", updateCenterCoordinate);
         google.maps.Event.addListener(m_map, "zoomend", updateZoomLevel);
+        
+        [self mapIsReady:[CPNotification notificationWithName:MKMapViewDidFinishLoadingNotification object:self userInfo:nil]];
     });
 }
 
@@ -358,7 +363,6 @@
     m_previousTrackingLocation = currentLocation;
 }
 
-
 - (CGPoint)convertCoordinate:(CLLocationCoordinate2D)aCoordinate toPointToView:(CPView)aView
 {
     if (!m_map)
@@ -378,6 +382,15 @@
         latlng = m_map.fromContainerPixelToLatLng(new google.maps.Point(location.x, location.y));
 
     return CLLocationCoordinate2DFromLatLng(latlng);
+}
+
+- (void)mapIsReady:(CPNotification)note
+{
+    //this looks to prevent false propagation of notifications for other objects
+    if([note object] != self)
+        return;
+
+    [[CPNotificationCenter defaultCenter] postNotification:note];
 }
 
 @end
