@@ -29,6 +29,7 @@
     MKMapView   m_map;
     CPImageView m_icon;
     CLLocationCoordinate2D m_location;
+    CGPoint     m_anchor;
 }
 
 - (void)setCoordinate:(CLLocationCoordinate2D)aCoordinate
@@ -36,9 +37,14 @@
     m_location = aCoordinate;
 }
 
-- (void)setIcon:(CPImage)anImage width:aWidth height:aHeight
+- (void)setAnchor:(CGPoint)anAnchor
 {
-    m_icon = [[CPImageView alloc] initWithFrame:CGRectMake(0,0,aWidth,aHeight)];
+    m_anchor = anAnchor;
+}
+
+- (void)setIcon:(CPImage)anImage size:(CGSize)size
+{
+    m_icon = [[CPImageView alloc] initWithFrame:CGRectMake(0,0,size.width,size.height)];
     [m_icon setImage:anImage];
     [self addSubview:m_icon];
 }
@@ -51,6 +57,11 @@
 
     m_map = map;
     var point = [m_map convertCoordinate:m_location toPointToView:m_map];
+    if (m_anchor)
+    {
+        point.x -= m_anchor.x;
+        point.y -= m_anchor.y;
+    }
     [self setFrameOrigin:point];
     [m_map addSubview:self];
 }

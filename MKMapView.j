@@ -35,7 +35,6 @@ MKMapViewDidFinishLoadingNotification = @"MKMapViewDidFinishLoadingNotification"
 
 @implementation MKMapView : CPView
 {
-    id                      m_delegate                  @accessors;
     CLLocationCoordinate2D  m_centerCoordinate;
     int                     m_zoomLevel;
     MKMapType               m_mapType;
