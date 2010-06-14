@@ -51,7 +51,7 @@
     
     if (m_map)
     {
-        [self _updateOrigin];
+        [self _updateOverlay];
         
         [[CPNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomDidChange:) name:MKMapViewZoomDidChangeNotification object:m_map];
         [[CPNotificationCenter defaultCenter] addObserver:self selector:@selector(mapCenterCoordinateDidChange:) name:MKMapViewCenterCoordinateDidChangeNotification object:m_map];
@@ -61,15 +61,15 @@
 
 - (void)zoomDidChange:sender
 {
-    [self _updateOrigin];
+    [self _updateOverlay];
 }
 
 - (void)mapCenterCoordinateDidChange:sender
 {
-    [self _updateOrigin];
+    [self _updateOverlay];
 }
 
-- (void)_updateOrigin
+- (void)_updateOverlay
 {   
     var point = [m_map convertCoordinate:m_location toPointToView:m_map];
     if (m_anchor)

@@ -29,5 +29,6 @@
 @import "MKGeometry.j"
 @import "MKMapView.j"
 @import "MKMarker.j"
+@import "MKRectangle.j"
 @import "MKTypes.j"
 

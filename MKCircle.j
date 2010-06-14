@@ -1,7 +1,7 @@
 // MKCircle.j
 // MapKit
 //
-// Created by Stephen Ierodiaconou
+// Created by Stephen Ierodiaconou, 2010
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -28,32 +28,14 @@
 
 @implementation MKCircle : MKOverlay
 {
-    float   m_radius;
-    CPColor m_fillColor;
-    CPColor m_strokeColor;
-}
-
-// Radius in meters
-- (void)setRadius:(float)radius
-{
-    m_radius = radius;
-    
-    // RESIZE CONTENT RECT
-    
-}
-
-- (void)setFillColor:(CPColor)color
-{
-    m_fillColor = color;
-}
-
-- (void)setStrokeColor:(CPColor)color
-{
-    m_strokeColor = color;
+    float   m_radius        @accessors(property=radius); // in meters
+    CPColor m_fillColor     @accessors(property=fillColor);
+    CPColor m_strokeColor   @accessors(property=strokeColor);
+    float   m_strokeWidth   @accessors(property=strokeWidth);
 }
 
 - (void)drawRect:(CGRect)rect
-{
+{   
     if (m_fillColor)
         [m_fillColor setFill];
     else
@@ -64,9 +46,50 @@
     else
         [[CPColor blackColor] setStroke];
 
+    // FIXME: does the rect need padding for the border? Is his Cocoa behaviour?
     var circle = [CPBezierPath bezierPathWithOvalInRect:rect];
+
+    if (m_strokeWidth !== nil)
+        [circle setLineWidth:m_strokeWidth];
+
     [circle fill];
     [circle stroke];
+}
+
+- (void)_updateOverlay
+{
+    //[super _updateOverlay];
+    var point = [m_map convertCoordinate:m_location toPointToView:m_map];
+    
+    // http://www.movable-type.co.uk/scripts/latlong.html - Calculate distance, bearing and more between Latitude/Longitude points
+    var R = 6371000,
+        brng = 3*Math.PI/4,
+        nd = m_radius/R,
+        lat1 = m_location.latitude * Math.PI/180,
+        lon1 = m_location.longitude * Math.PI/180,
+        lat2 = Math.asin( Math.sin(lat1)*Math.cos(nd) + 
+                          Math.cos(lat1)*Math.sin(nd)*Math.cos(brng) ),
+        lon2 = lon1 + Math.atan2(Math.sin(brng)*Math.sin(nd)*Math.cos(lat1), 
+                                 Math.cos(nd)-Math.sin(lat1)*Math.sin(lat2));
+    
+    var endpoint = [m_map convertCoordinate:CLLocationCoordinate2DMake(lat2 * 180/Math.PI, lon2 * 180/Math.PI) toPointToView:m_map];
+
+    [self setFrameSize:CGSizeMake(endpoint.x - point.x, endpoint.y - point.y)];
+    
+    if (m_anchor)
+    {
+        point.x -= m_anchor.x;
+        point.y -= m_anchor.y;
+    } 
+    else
+    {
+        // default anchor center
+        point.x -= FLOOR([self frameSize].width/2);
+        point.y -= FLOOR([self frameSize].height/2);
+    }
+    [self setFrameOrigin:point];
+    
+    [self setNeedsDisplay:YES];
 }
 
 @end
