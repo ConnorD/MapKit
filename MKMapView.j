@@ -39,14 +39,14 @@ var gmNamespace = nil;
     int             _zoomLevel;
 }
 
-- (id)initWithFrame:(CGRect)aFrame apiKey:(CPString)apiKey
+- (id)initWithFrame:(CGRect)aFrame
 {
-    return [self initWithFrame:aFrame apiKey:apiKey center:nil];
+    return [self initWithFrame:aFrame center:nil];
 }
 
-- (id)initWithFrame:(CGRect)aFrame apiKey:(CPString)apiKey center:(MKLocation)aLocation
+- (id)initWithFrame:(CGRect)aFrame center:(MKLocation)aLocation
 {
-    _apiKey = apiKey;
+    //_apiKey = apiKey;
     _center = aLocation;
     _zoomLevel = 6;
     
